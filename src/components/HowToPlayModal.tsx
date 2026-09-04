@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Crown, RotateCcw, Ban, Plus, Sparkles, ShieldAlert, Trophy } from 'lucide-react';
+import { X, Crown, RotateCcw, Ban, Plus, Sparkles, ShieldAlert, Trophy, Clock } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 interface HowToPlayModalProps {
