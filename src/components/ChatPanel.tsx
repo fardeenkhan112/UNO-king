@@ -1,4 +1,3 @@
-tsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 import type { ChatMessage } from '../types';
