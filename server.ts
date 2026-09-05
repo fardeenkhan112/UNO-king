@@ -1325,14 +1325,18 @@ io.on(
         const room =
           rooms.get(code);
 
-        if (
-          !room ||
-          !isValidPlayerId(
-            playerId
-          )
-        ) {
-          return;
-        }
+  if (
+  !room ||
+  !isValidPlayerId(playerId)
+) {
+  socket.emit('room:error', {
+    message:
+      'Your previous room is no longer available. Please create or join a new room.',
+    reason: 'RECONNECT_FAILED',
+  });
+
+  return;
+}
 
         const player =
           room.players.find(
