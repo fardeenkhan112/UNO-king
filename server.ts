@@ -1639,13 +1639,18 @@ io.on(
             currentRoomCode
           );
 
-        if (
-          !room ||
-          room.hostId !==
-            currentUserId
-        ) {
-          return;
-        }
+if (
+  !room ||
+  room.hostId !== currentUserId
+) {
+  socket.emit('room:error', {
+    message: !room
+      ? 'Room not found. Please reconnect or create a new room.'
+      : 'Only the host can start the game.',
+  });
+
+  return;
+}
 
         initializeGame(
           io,
