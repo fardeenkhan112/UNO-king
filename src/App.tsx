@@ -135,7 +135,7 @@ export default function App() {
   const [activeRoomCode, setActiveRoomCode] =
     useState<string | null>(() => {
       try {
-        return localStorage.getItem(
+        return sessionStorage.getItem(
           'uno-king-active-room',
         );
       } catch {
@@ -303,7 +303,7 @@ reconnectionDelayMax: 5000,
           }
 
           const savedRoom =
-            localStorage.getItem(
+            sessionStorage.getItem(
               'uno-king-active-room',
             );
 
@@ -383,7 +383,7 @@ reconnectionDelayMax: 5000,
         );
 
         try {
-          localStorage.setItem(
+          sessionStorage.setItem(
             'uno-king-active-room',
             roomCode,
           );
@@ -449,7 +449,7 @@ reconnectionDelayMax: 5000,
         );
 
         try {
-          localStorage.setItem(
+          sessionStorage.setItem(
             'uno-king-active-room',
             roomCode,
           );
@@ -606,7 +606,7 @@ reconnectionDelayMax: 5000,
           window.setTimeout(
             () => {
               try {
-                localStorage.removeItem(
+                sessionStorage.removeItem(
                   'uno-king-active-room',
                 );
               } catch {}
@@ -1127,7 +1127,7 @@ reconnectionDelayMax: 5000,
     );
 
     try {
-      localStorage.removeItem(
+      sessionStorage.removeItem(
         'uno-king-active-room',
       );
     } catch {}
@@ -1285,7 +1285,7 @@ reconnectionDelayMax: 5000,
     );
 
     try {
-      localStorage.removeItem(
+      sessionStorage.removeItem(
         'uno-king-active-room',
       );
     } catch {}
@@ -1616,7 +1616,7 @@ reconnectionDelayMax: 5000,
                 }
 
                 try {
-                  localStorage.removeItem(
+                  sessionStorage.removeItem(
                     'uno-king-active-room',
                   );
                 } catch {}
