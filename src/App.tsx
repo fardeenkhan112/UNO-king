@@ -256,17 +256,19 @@ export default function App() {
         .VITE_SOCKET_URL ||
       undefined;
 
-    const socket = io(
-      backendUrl,
-      {
-        transports: [
-          'websocket',
-          'polling',
-        ],
-        reconnectionAttempts: 10,
-        reconnection: true,
-      },
-    );
+  const socket = io(
+  backendUrl,
+  {
+    transports: [
+      'polling',
+      'websocket',
+    ],
+    reconnectionAttempts: Infinity,
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+  },
+);
 
     socketRef.current =
       socket;
