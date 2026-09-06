@@ -2575,7 +2575,7 @@ scheduleDisconnectedPlayerRemoval(
   room,
   leavingPlayer.id
 );
-
+}
 function removePlayerFromActiveMatch(
   io: SocketIOServer,
   room: ServerRoom,
