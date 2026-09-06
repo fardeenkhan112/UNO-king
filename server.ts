@@ -1363,28 +1363,30 @@ io.on(
           player.id
         );
 
-        if (
-          player.socketId &&
-          player.socketId !==
-            socket.id
-        ) {
-          const oldSocket =
-            io.sockets.sockets.get(
-              player.socketId
-            );
+        const oldSocketId =
+  player.socketId &&
+  player.socketId !== socket.id
+    ? player.socketId
+    : undefined;
 
-          if (oldSocket) {
-            oldSocket.disconnect(
-              true
-            );
-          }
-        }
+player.socketId =
+  socket.id;
 
-        player.socketId =
-          socket.id;
+player.connected =
+  true;
 
-        player.connected =
-          true;
+if (oldSocketId) {
+  const oldSocket =
+    io.sockets.sockets.get(
+      oldSocketId
+    );
+
+  if (oldSocket) {
+    oldSocket.disconnect(
+      true
+    );
+  }
+}
 
         currentRoomCode =
           code;
