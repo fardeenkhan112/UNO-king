@@ -696,16 +696,12 @@ reconnectionDelayMax: 5000,
       },
     );
 
-       // ---------------------------------------------------------
-    // INVITE LINK
+           // ---------------------------------------------------------
+    // INVITE LINK AUTO JOIN
     // ---------------------------------------------------------
-    // IMPORTANT:
-    // Opening an invite link must NOT automatically join the room.
-    // The actual room:join is handled only by the user's Join action
-    // through handleJoinRoom().
-    //
-    // This prevents ghost / phantom players caused by page loads,
-    // previews, duplicate browser sessions, or automatic page execution.
+    // A real invite link opens directly into the room.
+    // The page must be visible before joining so hidden/preloaded
+    // pages do not create phantom players.
 
     try {
       const params =
@@ -723,14 +719,102 @@ reconnectionDelayMax: 5000,
 
       if (
         normalizedRoom &&
-        normalizedRoom.length === 4
+        normalizedRoom.length === 4 &&
+        !isSinglePlayerRef.current
       ) {
-        // Keep the invite URL intact for the next step where
-        // LandingPage will display the room code.
-        // NO socket room:join happens here.
+        const inviteJoinKey =
+          `uno-king-invite-joined-${normalizedRoom}`;
+
+        const joinInviteRoom =
+          () => {
+            if (
+              document.visibilityState !==
+              'visible'
+            ) {
+              return;
+            }
+
+            if (
+              isJoiningRoomRef.current ||
+              hasJoinedRoomRef.current ||
+              isSinglePlayerRef.current
+            ) {
+              return;
+            }
+
+            let alreadyAttempted =
+              false;
+
+            try {
+              alreadyAttempted =
+                sessionStorage.getItem(
+                  inviteJoinKey,
+                ) === '1';
+            } catch {}
+
+            if (
+              alreadyAttempted
+            ) {
+              return;
+            }
+
+            isJoiningRoomRef.current =
+              true;
+
+            setIsJoining(
+              true,
+            );
+
+            setJoinError(
+              null,
+            );
+
+            socket.emit(
+              'room:join',
+              {
+                roomCode:
+                  normalizedRoom,
+
+                playerName:
+                  profileRef.current.name,
+
+                avatar:
+                  profileRef.current.avatar,
+
+                playerId:
+                  getClientPlayerId(),
+              },
+            );
+          };
+
+        const tryJoinWhenReady =
+          () => {
+            if (
+              document.visibilityState ===
+              'visible'
+            ) {
+              joinInviteRoom();
+            }
+          };
+
+        if (
+          socket.connected
+        ) {
+          tryJoinWhenReady();
+        } else {
+          socket.once(
+            'connect',
+            tryJoinWhenReady,
+          );
+        }
+
+        document.addEventListener(
+          'visibilitychange',
+          tryJoinWhenReady,
+        );
       }
     } catch {
-      // Ignore invalid URL parameters.
+      // Ignore invalid invite URLs.
     }
 
     // ---------------------------------------------------------
