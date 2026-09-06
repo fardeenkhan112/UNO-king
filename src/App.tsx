@@ -341,12 +341,22 @@ export default function App() {
     // SOCKET DISCONNECT
     // ---------------------------------------------------------
 
-    socket.on(
-      'disconnect',
-      () => {
-        setIsConnected(false);
-      },
-    );
+   socket.on(
+  'disconnect',
+  () => {
+    setIsConnected(false);
+
+    // The socket connection is gone, so the next
+    // successful connection must attempt room recovery.
+    if (
+      activeRoomCode ||
+      hasJoinedRoomRef.current
+    ) {
+      hasJoinedRoomRef.current = false;
+      isJoiningRoomRef.current = false;
+    }
+  },
+);
 
     // ---------------------------------------------------------
     // ROOM CREATED
