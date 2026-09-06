@@ -60,14 +60,113 @@ export function saveSoundSetting(enabled: boolean): void {
 
 const PLAYER_ID_KEY = 'uno-king-player-id';
 
+function createPlayerId(): string {
+  return `p-${crypto.randomUUID()}`;
+}
+
+function isValidStoredPlayerId(
+  value: string | null
+): value is string {
+  return Boolean(
+    value &&
+      /^[A-Za-z0-9_-]{8,64}$/.test(value)
+  );
+}
+
 export function getClientPlayerId(): string {
+  // 1. localStorage
   try {
-    const existing = localStorage.getItem(PLAYER_ID_KEY);
-    if (existing && /^[A-Za-z0-9_-]{8,64}$/.test(existing)) return existing;
-    const id = `p-${crypto.randomUUID()}`;
-    localStorage.setItem(PLAYER_ID_KEY, id);
-    return id;
+    const existing =
+      localStorage.getItem(
+        PLAYER_ID_KEY
+      );
+
+    if (
+      isValidStoredPlayerId(existing)
+    ) {
+      return existing;
+    }
   } catch {
-    return `p-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+    // Continue to cookie/sessionStorage fallback.
   }
+
+  // 2. Browser cookie
+  try {
+    const cookies =
+      document.cookie
+        .split(';')
+        .map((item) => item.trim());
+
+    const cookie =
+      cookies.find((item) =>
+        item.startsWith(
+          `${PLAYER_ID_KEY}=`
+        )
+      );
+
+    const existing =
+      cookie
+        ? decodeURIComponent(
+            cookie.substring(
+              PLAYER_ID_KEY.length + 1
+            )
+          )
+        : null;
+
+    if (
+      isValidStoredPlayerId(existing)
+    ) {
+      try {
+        localStorage.setItem(
+          PLAYER_ID_KEY,
+          existing
+        );
+      } catch {}
+
+      return existing;
+    }
+  } catch {
+    // Continue to sessionStorage.
+  }
+
+  // 3. sessionStorage
+  try {
+    const existing =
+      sessionStorage.getItem(
+        PLAYER_ID_KEY
+      );
+
+    if (
+      isValidStoredPlayerId(existing)
+    ) {
+      return existing;
+    }
+  } catch {
+    // Continue to create a new ID.
+  }
+
+  // 4. Create one stable ID
+  const id =
+    createPlayerId();
+
+  try {
+    localStorage.setItem(
+      PLAYER_ID_KEY,
+      id
+    );
+  } catch {}
+
+  try {
+    sessionStorage.setItem(
+      PLAYER_ID_KEY,
+      id
+    );
+  } catch {}
+
+  try {
+    document.cookie =
+      `${PLAYER_ID_KEY}=${encodeURIComponent(id)}; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {}
+
+  return id;
 }
