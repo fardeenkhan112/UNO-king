@@ -259,14 +259,11 @@ export default function App() {
   const socket = io(
   backendUrl,
   {
-    transports: [
-      'polling',
-      'websocket',
-    ],
-    reconnectionAttempts: Infinity,
-    reconnection: true,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
+   transports: ['polling'],
+reconnectionAttempts: Infinity,
+reconnection: true,
+reconnectionDelay: 1000,
+reconnectionDelayMax: 5000,
   },
 );
 
