@@ -696,9 +696,16 @@ reconnectionDelayMax: 5000,
       },
     );
 
+       // ---------------------------------------------------------
+    // INVITE LINK
     // ---------------------------------------------------------
-    // INVITE LINK JOIN
-    // ---------------------------------------------------------
+    // IMPORTANT:
+    // Opening an invite link must NOT automatically join the room.
+    // The actual room:join is handled only by the user's Join action
+    // through handleJoinRoom().
+    //
+    // This prevents ghost / phantom players caused by page loads,
+    // previews, duplicate browser sessions, or automatic page execution.
 
     try {
       const params =
@@ -707,9 +714,7 @@ reconnectionDelayMax: 5000,
         );
 
       const urlRoom =
-        params.get(
-          'room',
-        );
+        params.get('room');
 
       const normalizedRoom =
         urlRoom
@@ -720,77 +725,9 @@ reconnectionDelayMax: 5000,
         normalizedRoom &&
         normalizedRoom.length === 4
       ) {
-        const joinInviteRoom =
-  () => {
-    if (
-      isJoiningRoomRef.current ||
-      hasJoinedRoomRef.current ||
-      isSinglePlayerRef.current
-    ) {
-      return;
-    }
-
-    const inviteJoinKey =
-      `uno-king-invite-joined-${normalizedRoom}`;
-
-    try {
-      if (
-        sessionStorage.getItem(
-          inviteJoinKey
-        ) === '1'
-      ) {
-        return;
-      }
-
-      sessionStorage.setItem(
-        inviteJoinKey,
-        '1'
-      );
-    } catch {
-      // Continue if sessionStorage is unavailable.
-    }
-
-    isJoiningRoomRef.current =
-      true;
-
-            setIsJoining(
-              true,
-            );
-
-            setJoinError(
-              null,
-            );
-
-            socket.emit(
-              'room:join',
-              {
-                roomCode:
-                  normalizedRoom,
-
-                playerName:
-                  profileRef.current
-                    .name,
-
-                avatar:
-                  profileRef.current
-                    .avatar,
-
-                playerId:
-                  getClientPlayerId(),
-              },
-            );
-          };
-
-        if (
-          socket.connected
-        ) {
-          joinInviteRoom();
-        } else {
-          socket.once(
-            'connect',
-            joinInviteRoom,
-          );
-        }
+        // Keep the invite URL intact for the next step where
+        // LandingPage will display the room code.
+        // NO socket room:join happens here.
       }
     } catch {
       // Ignore invalid URL parameters.
@@ -819,8 +756,7 @@ reconnectionDelayMax: 5000,
           null;
       }
     };
-  }, []);
-
+}, []);
   // ---------------------------------------------------------
   // UPDATE PROFILE
   // ---------------------------------------------------------
