@@ -2557,35 +2557,24 @@ function handlePlayerLeave(
   }
 
   // Network disconnect:
-  // KEEP the player in the room temporarily.
-  leavingPlayer.connected =
-    false;
+// KEEP the player in the room temporarily.
+// Do NOT announce "player left" yet because
+// the socket may reconnect automatically.
+leavingPlayer.connected = false;
 
-  room.lastActionMessage =
-    `${leavingName} disconnected. Reconnecting for ${RECONNECT_GRACE_MS / 1000}s...`;
+room.lastActionMessage =
+  `${leavingName} disconnected. Reconnecting...`;
 
-  io.to(
-    room.roomCode
-  ).emit(
-    'room:playerLeft',
-    {
-      name:
-        leavingName,
-      matchEnded: false,
-    }
-  );
+broadcastRoomState(
+  io,
+  room
+);
 
-  broadcastRoomState(
-    io,
-    room
-  );
-
-  scheduleDisconnectedPlayerRemoval(
-    io,
-    room,
-    leavingPlayer.id
-  );
-}
+scheduleDisconnectedPlayerRemoval(
+  io,
+  room,
+  leavingPlayer.id
+);
 
 function removePlayerFromActiveMatch(
   io: SocketIOServer,
