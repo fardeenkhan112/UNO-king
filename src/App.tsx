@@ -721,17 +721,37 @@ reconnectionDelayMax: 5000,
         normalizedRoom.length === 4
       ) {
         const joinInviteRoom =
-          () => {
-            if (
-              isJoiningRoomRef.current ||
-              hasJoinedRoomRef.current ||
-              isSinglePlayerRef.current
-            ) {
-              return;
-            }
+  () => {
+    if (
+      isJoiningRoomRef.current ||
+      hasJoinedRoomRef.current ||
+      isSinglePlayerRef.current
+    ) {
+      return;
+    }
 
-            isJoiningRoomRef.current =
-              true;
+    const inviteJoinKey =
+      `uno-king-invite-joined-${normalizedRoom}`;
+
+    try {
+      if (
+        sessionStorage.getItem(
+          inviteJoinKey
+        ) === '1'
+      ) {
+        return;
+      }
+
+      sessionStorage.setItem(
+        inviteJoinKey,
+        '1'
+      );
+    } catch {
+      // Continue if sessionStorage is unavailable.
+    }
+
+    isJoiningRoomRef.current =
+      true;
 
             setIsJoining(
               true,
