@@ -35,7 +35,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   joinError,
   isJoining = false,
 }) => {
-  const [inviteCode, setInviteCode] = useState('');
+ const [inviteCode, setInviteCode] =
+  useState(() => {
+    try {
+      const params =
+        new URLSearchParams(
+          window.location.search,
+        );
+
+      const room =
+        params
+          .get('room')
+          ?.trim()
+          .toUpperCase();
+
+      return room &&
+        room.length === 4
+        ? room
+        : '';
+    } catch {
+      return '';
+    }
+  });
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
