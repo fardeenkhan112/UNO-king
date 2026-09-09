@@ -334,6 +334,41 @@ class SoundManager {
     osc.stop(now + 0.035);
   }
 
+  // Short, unmistakable winner alert used when the first player finishes.
+  public playWinnerAlert() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const notes = [659.25, 783.99, 987.77, 1318.51];
+
+    notes.forEach((freq, index) => {
+      const t = now + index * 0.09;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = index === notes.length - 1 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.22, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.44);
+    });
+
+    const bass = ctx.createOscillator();
+    const bassGain = ctx.createGain();
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(164.81, now);
+    bass.frequency.exponentialRampToValueAtTime(110, now + 0.38);
+    bassGain.gain.setValueAtTime(0.12, now);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+    bass.connect(bassGain);
+    bassGain.connect(ctx.destination);
+    bass.start(now);
+    bass.stop(now + 0.42);
+  }
+
   // Grand Victory Chime
   public playVictory() {
     const ctx = this.getContext();
