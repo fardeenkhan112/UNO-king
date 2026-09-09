@@ -78,31 +78,24 @@ export const GameResultModal: React.FC<GameResultModalProps> = ({
 
           <div className="space-y-1.5 max-h-36 sm:max-h-44 overflow-y-auto pr-1 cards-scrollbar">
             {rankings.map((player: Player, index: number) => {
-              const isWinner = index === 0;
+              const place = player.placement || index + 1;
+              const isPodium = place <= 3;
               const isUser = player.id === currentPlayerId;
+              const tone = place === 1 ? 'result-rank--gold' : place === 2 ? 'result-rank--diamond' : place === 3 ? 'result-rank--silver' : 'result-rank--default';
               return (
                 <div
                   key={player.id}
-                  className={`flex items-center justify-between p-2 rounded-xl text-xs sm:text-sm ${
-                    isWinner
-                      ? 'bg-amber-500/20 border border-amber-500/40 text-amber-200 font-bold'
-                      : isUser
-                      ? 'bg-blue-600/20 border border-blue-500/30 text-blue-200 font-semibold'
-                      : 'bg-slate-800/40 text-slate-300'
-                  }`}
+                  className={`result-rank ${tone} ${isUser ? 'is-user' : ''}`}
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-5 font-royal font-bold text-center flex-shrink-0">
-                      {index === 0 ? '👑' : `${index + 1}.`}
+                  <div className="result-rank__left">
+                    <span className="result-rank__number">
+                      {place === 1 ? '👑' : place === 2 ? '💎' : place === 3 ? '🥈' : `${place}.`}
                     </span>
-                    <span className="text-base flex-shrink-0">{player.avatar}</span>
-                    <span className="truncate max-w-[120px] sm:max-w-[200px]">
-                      {player.name} {isUser && '(You)'}
-                    </span>
+                    <span className="result-rank__avatar">{player.avatar}</span>
+                    <span className="result-rank__name">{player.name} {isUser && '(You)'}</span>
                   </div>
-
-                  <span className="text-[11px] sm:text-xs text-slate-400 flex-shrink-0 ml-2">
-                    {isWinner ? 'Winner' : `${player.cardCount || 0} cards`}
+                  <span className="result-rank__status">
+                    {place === 1 ? 'WINNER' : isPodium ? `${place === 2 ? '2ND' : '3RD'} PLACE` : `${player.cardCount || 0} CARDS`}
                   </span>
                 </div>
               );
