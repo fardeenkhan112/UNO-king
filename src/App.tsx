@@ -41,6 +41,8 @@ import { SinglePlayerEngine } from './utils/singlePlayerEngine';
 import {
   WifiOff,
   Crown,
+  Trophy,
+  Medal,
 } from 'lucide-react';
 
 type AppView =
@@ -167,6 +169,7 @@ export default function App() {
       null,
     );
 
+
   const [matchClosedByLeave, setMatchClosedByLeave] =
     useState(false);
 
@@ -195,6 +198,14 @@ export default function App() {
       null,
     );
 
+  const winnerAlertTimeoutRef =
+    useRef<number | null>(null);
+
+  const [winnerAlertQueue, setWinnerAlertQueue] =
+    useState<Array<{ name: string; avatar: string; place: number }>>([]);
+  const winnerAlertBaselineRef = useRef(false);
+  const seenPlacementsRef = useRef<Set<string>>(new Set());
+
   // ---------------------------------------------------------
   // SOUND
   // ---------------------------------------------------------
@@ -220,6 +231,59 @@ export default function App() {
   // ---------------------------------------------------------
   // NOTIFICATION
   // ---------------------------------------------------------
+
+  const applyGameState = (updatedState: GameState) => {
+    const rankings = updatedState.rankings || [];
+
+    // Establish a quiet baseline when first entering/reconnecting to a room.
+    // This prevents refresh/reconnect from replaying old finish alerts.
+    if (!winnerAlertBaselineRef.current) {
+      rankings.forEach((player) => {
+        if (player.placement) seenPlacementsRef.current.add(player.id);
+      });
+      winnerAlertBaselineRef.current = true;
+    } else if (rankings.length === 0 && updatedState.gameStatus !== 'finished') {
+      seenPlacementsRef.current.clear();
+    }
+
+    const newlyPlacedPlayers = rankings
+      .filter((player) => player.placement && !seenPlacementsRef.current.has(player.id))
+      .sort((a, b) => (a.placement || 999) - (b.placement || 999));
+
+    const newPlacements = newlyPlacedPlayers.map((player) => ({
+      name: player.name,
+      avatar: player.avatar || '👑',
+      place: player.placement || 1,
+    }));
+
+    newlyPlacedPlayers.forEach((player) => seenPlacementsRef.current.add(player.id));
+
+    if (newPlacements.length) {
+      setWinnerAlertQueue((current) => [...current, ...newPlacements]);
+    }
+
+    setGameState(updatedState);
+  };
+
+  const winnerAlert = winnerAlertQueue[0] || null;
+
+  useEffect(() => {
+    if (!winnerAlert) return;
+
+    sound.playWinnerAlert();
+    if (winnerAlertTimeoutRef.current !== null) {
+      window.clearTimeout(winnerAlertTimeoutRef.current);
+    }
+    winnerAlertTimeoutRef.current = window.setTimeout(() => {
+      setWinnerAlertQueue((queue) => queue.slice(1));
+    }, 3600);
+
+    return () => {
+      if (winnerAlertTimeoutRef.current !== null) {
+        window.clearTimeout(winnerAlertTimeoutRef.current);
+      }
+    };
+  }, [winnerAlert]);
 
   const showNotification = (
     msg: string,
@@ -648,9 +712,7 @@ reconnectionDelayMax: 5000,
       (
         updatedState: GameState,
       ) => {
-        setGameState(
-          updatedState,
-        );
+        applyGameState(updatedState);
 
         if (
           updatedState.gameStatus ===
@@ -839,6 +901,11 @@ reconnectionDelayMax: 5000,
         notificationTimeoutRef.current =
           null;
       }
+
+      if (winnerAlertTimeoutRef.current !== null) {
+        window.clearTimeout(winnerAlertTimeoutRef.current);
+        winnerAlertTimeoutRef.current = null;
+      }
     };
 }, []);
   // ---------------------------------------------------------
@@ -915,9 +982,7 @@ reconnectionDelayMax: 5000,
             (
               updatedState,
             ) => {
-              setGameState(
-                updatedState,
-              );
+              applyGameState(updatedState);
             },
 
           onUnoCalled:
@@ -1368,15 +1433,31 @@ reconnectionDelayMax: 5000,
         </div>
       )}
 
+      {/* FINISH ALERT — every placement gets its own queued announcement */}
+      {winnerAlert && (
+        <div className={`winner-alert winner-alert--place-${Math.min(winnerAlert.place, 4)}`} role="alert" aria-live="assertive">
+          <div className="winner-alert__glow" />
+          <div className="winner-alert__avatar">
+            <span>{winnerAlert.avatar}</span>
+            {winnerAlert.place === 1 ? <Crown size={13} /> : <Medal size={13} />}
+          </div>
+          <div className="winner-alert__copy">
+            <span>{winnerAlert.place === 1 ? '🏆 1ST WINNER' : `🏅 ${winnerAlert.place}${winnerAlert.place === 2 ? 'ND' : winnerAlert.place === 3 ? 'RD' : 'TH'} PLACE`}</span>
+            <strong>{winnerAlert.name}</strong>
+            <small>{winnerAlert.place === 1 ? 'has claimed the crown!' : 'has secured a place on the podium!'}</small>
+          </div>
+          <div className="winner-alert__trophy"><Trophy size={20} /></div>
+        </div>
+      )}
+
       {/* FLOATING ACTION TOAST NOTIFICATION */}
 
       {notification && (
-        <div className="fixed top-20 right-4 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#0F1424]/95 border border-[#E5A93C]/50 text-white text-xs font-semibold shadow-2xl backdrop-blur-md animate-fade-in">
-          <Crown className="w-4 h-4 text-[#E5A93C]" />
-
-          <span>
-            {notification}
-          </span>
+        <div className="app-toast animate-fade-in" role="status" aria-live="polite">
+          <div className="app-toast__icon">
+            <Crown className="w-4 h-4" />
+          </div>
+          <span>{notification}</span>
         </div>
       )}
 
