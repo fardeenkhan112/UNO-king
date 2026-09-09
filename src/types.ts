@@ -1,12 +1,23 @@
-export type CardColor = 'gold' | 'crimson' | 'sapphire' | 'emerald' | 'wild';
+export type CardColor =
+  | 'gold'
+  | 'crimson'
+  | 'sapphire'
+  | 'emerald'
+  | 'wild';
 
-export type CardType = 'number' | 'skip' | 'reverse' | 'draw2' | 'wild' | 'wild4';
+export type CardType =
+  | 'number'
+  | 'skip'
+  | 'reverse'
+  | 'draw2'
+  | 'wild'
+  | 'wild4';
 
 export interface Card {
   id: string;
   color: CardColor;
   type: CardType;
-  value?: number; // 0-9 for numbers
+  value?: number;
 }
 
 export interface Player {
@@ -19,14 +30,20 @@ export interface Player {
   hand?: Card[];
   connected: boolean;
   calledUno?: boolean;
-  calledUnu?: boolean; // backwards compatibility
+  calledUnu?: boolean;
+  placement?: number;
+  hasFinished?: boolean;
 }
 
 export interface GameSettings {
-  stacking: boolean; // allow stacking +2 or +4
+  stacking: boolean;
 }
 
-export type GameStatus = 'waiting' | 'starting' | 'playing' | 'finished';
+export type GameStatus =
+  | 'waiting'
+  | 'starting'
+  | 'playing'
+  | 'finished';
 
 export interface GameState {
   roomId: string;
@@ -37,7 +54,7 @@ export interface GameState {
   topCard: Card | null;
   activeColor: CardColor;
   currentPlayerIndex: number;
-  turnDirection: 1 | -1; // 1 = clockwise, -1 = counter-clockwise
+  turnDirection: 1 | -1;
   pendingPenalty: number;
   winner: Player | null;
   rankings?: Player[];
@@ -67,6 +84,6 @@ export interface VoicePeerState {
 }
 
 export interface SinglePlayerSetup {
-  botCount: number; // 1 to 7
+  botCount: number;
   stacking: boolean;
 }
