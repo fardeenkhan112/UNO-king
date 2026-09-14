@@ -1,8 +1,12 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.unoking.game",
-        "sha256_cert_fingerprints": ["F9:22:25:5F:52:19:B7:27:F1:55:0A:BF:95:88:69:E8:DF:A0:43:99:09:D7:F1:62:E1:FB:03:26:71:B8:C5:1E"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.unoking.game",
+      "sha256_cert_fingerprints": [
+        "6A:6A:95:B0:D5:01:89:84:AE:85:26:57:F9:13:64:1C:27:4D:3C:4D:6C:C3:24:3D:2B:6B:BD:77:85:DD:49:12"
+      ]
+    }
+  }
+]
