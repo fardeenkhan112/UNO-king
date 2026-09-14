@@ -1,0 +1,6 @@
+{
+  "name": "UNO KING: Royal Card Game",
+  "description": "A premium multiplayer browser card game for 1 to 8 players with smart AI bots, real-time private rooms, and tactile 3D cards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
