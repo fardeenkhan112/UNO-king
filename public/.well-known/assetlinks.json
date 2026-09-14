@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.unoking.game",
+        "sha256_cert_fingerprints": ["F9:22:25:5F:52:19:B7:27:F1:55:0A:BF:95:88:69:E8:DF:A0:43:99:09:D7:F1:62:E1:FB:03:26:71:B8:C5:1E"]
+      }
+    }]
