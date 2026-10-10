@@ -42,7 +42,7 @@ export default defineConfig(() => {
         },
 
         workbox: {
-          navigateFallback: '/',
+          navigateFallback: 'index.html',
         },
 
         devOptions: {
